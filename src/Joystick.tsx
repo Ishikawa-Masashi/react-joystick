@@ -42,7 +42,12 @@ export interface IJoystickCoordinates {
 }
 
 export const Joystick: React.VFC<IJoystickProps> = (props) => {
-  const { baseColor = '#000033', stickColor = '#3D59AB', throttle = 0 } = props;
+  const {
+    baseColor = '#000033',
+    stickColor = '#3D59AB',
+    throttle = 0,
+    size = 100,
+  } = props;
 
   const _stickRef = React.useRef<HTMLDivElement>(null);
   const _baseRef = React.useRef<HTMLDivElement>(null);
@@ -148,7 +153,7 @@ export const Joystick: React.VFC<IJoystickProps> = (props) => {
     return 'BACKWARD';
   };
   const _getWithinBounds = (value: number): number => {
-    const halfBaseSize = _baseSize / 2;
+    const halfBaseSize = size / 2;
     if (value > halfBaseSize) {
       return halfBaseSize;
     }
@@ -172,10 +177,10 @@ export const Joystick: React.VFC<IJoystickProps> = (props) => {
       }
 
       const relativeX = _getWithinBounds(
-        absoluteX - _parentRectRef.current!.left - _baseSize / 2
+        absoluteX - _parentRectRef.current!.left - size / 2
       );
       const relativeY = _getWithinBounds(
-        absoluteY - _parentRectRef.current!.top - _baseSize / 2
+        absoluteY - _parentRectRef.current!.top - size / 2
       );
       const atan2 = Math.atan2(relativeX, relativeY);
 
@@ -215,24 +220,24 @@ export const Joystick: React.VFC<IJoystickProps> = (props) => {
   };
   const _getBaseStyle = () => {
     return {
-      height: `${_baseSize}px`,
-      width: `${_baseSize}px`,
+      height: `${size}px`,
+      width: `${size}px`,
       background: baseColor,
-      borderRadius: _baseSize,
+      borderRadius: size,
       display: 'flex',
       justifyContent: 'center',
       alignItems: 'center',
     };
   };
   const _getStickStyle = () => {
-    const stickSize = `${_baseSize / 1.5}px`;
+    const stickSize = `${size / 1.5}px`;
 
     let stickStyle = {
       background: stickColor,
       cursor: 'move',
       height: stickSize,
       width: stickSize,
-      borderRadius: _baseSize,
+      borderRadius: size,
       flexShrink: 0,
     };
 
@@ -244,11 +249,10 @@ export const Joystick: React.VFC<IJoystickProps> = (props) => {
     }
     return stickStyle;
   };
-  //   render() {
-  //   this._baseSize = this.props.size || 100;
-  const _baseSize = props.size || 100;
+
   const baseStyle = _getBaseStyle();
   const stickStyle = _getStickStyle();
+
   return (
     <div
       className={props.disabled ? 'joystick-base-disabled' : ''}
@@ -264,5 +268,4 @@ export const Joystick: React.VFC<IJoystickProps> = (props) => {
       ></div>
     </div>
   );
-  //   }
 };
