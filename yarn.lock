@@ -3847,11 +3847,6 @@ v8-to-istanbul@^8.1.0:
     convert-source-map "^1.6.0"
     source-map "^0.7.3"
 
-vite-plugin-monaco-editor@^1.0.10:
-  version "1.0.10"
-  resolved "https://registry.yarnpkg.com/vite-plugin-monaco-editor/-/vite-plugin-monaco-editor-1.0.10.tgz#cd370f68d4121bced6f902c6284649cc8eca4170"
-  integrity sha512-7yTAFIE0SefjCmfnjrvXOl53wkxeSASc/ZIcB5tZeEK3vAmHhveV8y3f90Vp8b+PYdbUipjqf91mbFbSENkpcw==
-
 vite@^2.7.3:
   version "2.7.3"
   resolved "https://registry.yarnpkg.com/vite/-/vite-2.7.3.tgz#e983cf4f71f42c192436bfcad1b75932642da293"
