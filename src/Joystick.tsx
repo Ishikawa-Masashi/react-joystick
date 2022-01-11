@@ -27,11 +27,6 @@ export interface IJoystickUpdateEvent {
   direction: JoystickDirection | null;
 }
 
-export interface IJoystickState {
-  dragging: boolean;
-  coordinates?: IJoystickCoordinates;
-}
-
 type JoystickDirection = 'FORWARD' | 'RIGHT' | 'LEFT' | 'BACKWARD';
 
 export interface IJoystickCoordinates {
@@ -266,18 +261,96 @@ export const Joystick: React.VFC<IJoystickProps> = (props) => {
   const stickStyle = _getStickStyle();
 
   return (
-    <div
-      className={disabled ? 'joystick-base-disabled' : ''}
-      onMouseDown={_mouseDown}
-      onTouchStart={_mouseDown}
-      ref={_baseRef}
-      style={baseStyle}
-    >
+    <>
       <div
-        ref={_stickRef}
-        className={disabled ? 'joystick-disabled' : ''}
-        style={stickStyle}
-      ></div>
-    </div>
+        className={disabled ? 'joystick-base-disabled' : ''}
+        onMouseDown={_mouseDown}
+        onTouchStart={_mouseDown}
+        ref={_baseRef}
+        style={baseStyle}
+      >
+        <div
+          ref={_stickRef}
+          className={disabled ? 'joystick-disabled' : ''}
+          style={stickStyle}
+        ></div>
+      </div>
+      {/* <div id="joystick" style={{ width: '20%' }}>
+        <svg width="100%" height="100%" viewBox="0 0 100 100">
+          <defs>
+            <linearGradient id="grad1" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop
+                offset="0%"
+                style={{ stopColor: 'rgb(16,16,16)', stopOpacity: 1 }}
+              />
+              <stop
+                offset="100%"
+                style={{ stopColor: 'rgb(240,240,240)', stopOpacity: 1 }}
+              />
+            </linearGradient>
+            <linearGradient id="grad2" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop
+                offset="0%"
+                style={{ stopColor: 'rgb(240,240,240)', stopOpacity: 1 }}
+              />
+              <stop
+                offset="100%"
+                style={{ stopColor: 'rgb(16,16,16)', stopOpacity: 1 }}
+              />
+            </linearGradient>
+            <linearGradient id="grad3" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop
+                offset="0%"
+                style={{ stopColor: 'rgb(168,168,168)', stopOpacity: 1 }}
+              />
+              <stop
+                offset="100%"
+                style={{ stopColor: 'rgb(239,239,239)', stopOpacity: 1 }}
+              />
+            </linearGradient>
+          </defs>
+          <circle cx="50" cy="50" r="50" fill="url(#grad1)" />
+          <circle
+            cx="50"
+            cy="50"
+            r="47"
+            fill="url(#grad2)"
+            stroke="black"
+            stroke-width="1.5px"
+          />
+          <circle cx="50" cy="50" r="44" fill="url(#grad3)" />
+          <circle
+            // cx="50"
+            cx={coordinatesRef.current ? coordinatesRef.current.relativeX : 50}
+            cy="50"
+            r="20"
+            fill="#cccccc"
+            stroke="black"
+            stroke-width="1px"
+            onClick={() => alert('CENTER')}
+          />
+          <path
+            d="M50,14 54,22 46,22Z"
+            fill="rgba(0,0,0,0.8)"
+            onClick={() => alert('UP')}
+          />
+          <path
+            d="M50,86 54,78 46,78Z"
+            fill="rgba(0,0,0,0.8)"
+            onClick={() => alert('DOWN')}
+          />
+          <path
+            d="M14,50 22,54 22,46Z"
+            fill="rgba(0,0,0,0.8)"
+            onClick={() => alert('LEFT')}
+          />
+          <path
+            d="M86,50 78,54 78,46Z"
+            fill="rgba(0,0,0,0.8)"
+            onClick={() => alert('RIGHT')}
+          />
+        </svg>
+      </div> */}
+    </>
   );
 };
