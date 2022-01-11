@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 
 export interface IJoystickProps {
   size?: number;
@@ -10,6 +10,7 @@ export interface IJoystickProps {
   stop?: (event: IJoystickUpdateEvent) => void;
   start?: (event: IJoystickUpdateEvent) => void;
 }
+
 enum InteractionEvents {
   MouseDown = 'mousedown',
   MouseMove = 'mousemove',
@@ -30,6 +31,7 @@ export interface IJoystickState {
   dragging: boolean;
   coordinates?: IJoystickCoordinates;
 }
+
 type JoystickDirection = 'FORWARD' | 'RIGHT' | 'LEFT' | 'BACKWARD';
 export interface IJoystickCoordinates {
   relativeX: number;
@@ -40,7 +42,8 @@ export interface IJoystickCoordinates {
 }
 
 export const Joystick: React.VFC<IJoystickProps> = (props) => {
-  const { baseColor = '#000033', stickColor = '#3D59AB' } = props;
+  const { baseColor = '#000033', stickColor = '#3D59AB', throttle = 0 } = props;
+
   const _stickRef = React.useRef<HTMLDivElement>(null);
   const _baseRef = React.useRef<HTMLDivElement>(null);
   //   const _throttleMoveCallback: (data: any) => void;
@@ -57,7 +60,7 @@ export const Joystick: React.VFC<IJoystickProps> = (props) => {
   // };
   //   const [dragging, setDragging] = React.useState(false);
   const draggingRef = React.useRef(false);
-  //   const [coordinates, setCoordinates] = React.useState<IJoystickCoordinates>();
+  const [coordinates, setCoordinates] = React.useState<IJoystickCoordinates>();
   const coordinatesRef = React.useRef<IJoystickCoordinates | undefined>(
     undefined
   );
@@ -69,8 +72,7 @@ export const Joystick: React.VFC<IJoystickProps> = (props) => {
     let lastCall = 0;
     return (event: IJoystickUpdateEvent) => {
       const now = new Date().getTime();
-      const throttleAmount = props.throttle || 0;
-      if (now - lastCall < throttleAmount) {
+      if (now - lastCall < throttle) {
         return;
       }
       lastCall = now;
@@ -80,12 +82,12 @@ export const Joystick: React.VFC<IJoystickProps> = (props) => {
     };
   })();
 
-  const _boundMouseUp = () => {
-    _mouseUp();
-  };
-  const _boundMouseMove = (event: MouseEvent | TouchEvent) => {
-    _mouseMove(event);
-  };
+  // const _boundMouseUp = () => {
+  //   _mouseUp();
+  // };
+  // const _boundMouseMove = (event: MouseEvent | TouchEvent) => {
+  //   _mouseMove(event);
+  // };
   //   }
 
   const _updatePos = (coordinates: IJoystickCoordinates) => {
@@ -93,10 +95,11 @@ export const Joystick: React.VFC<IJoystickProps> = (props) => {
       //   this.setState({
       //     coordinates,
       //   });
-      //   setCoordinates(coordinates);
+
+      setCoordinates(coordinates);
       coordinatesRef.current = coordinates;
 
-      _stickRef.current!.style.transform = `translate3d(${coordinatesRef.current.relativeX}px, ${coordinatesRef.current.relativeY}px, 0)`;
+      // _stickRef.current!.style.transform = `translate3d(${coordinatesRef.current.relativeX}px, ${coordinatesRef.current.relativeY}px, 0)`;
     });
     _throttleMoveCallback({
       type: 'move',
@@ -116,11 +119,11 @@ export const Joystick: React.VFC<IJoystickProps> = (props) => {
       draggingRef.current = true;
 
       if (e.type === InteractionEvents.MouseDown) {
-        window.addEventListener(InteractionEvents.MouseUp, _boundMouseUp);
-        window.addEventListener(InteractionEvents.MouseMove, _boundMouseMove);
+        window.addEventListener(InteractionEvents.MouseUp, _mouseUp);
+        window.addEventListener(InteractionEvents.MouseMove, _mouseMove);
       } else {
-        window.addEventListener(InteractionEvents.TouchEnd, _boundMouseUp);
-        window.addEventListener(InteractionEvents.TouchMove, _boundMouseMove);
+        window.addEventListener(InteractionEvents.TouchEnd, _mouseUp);
+        window.addEventListener(InteractionEvents.TouchMove, _mouseMove);
       }
 
       if (props.start) {
@@ -198,8 +201,8 @@ export const Joystick: React.VFC<IJoystickProps> = (props) => {
 
     _stickRef.current!.style.transform = 'unset';
 
-    window.removeEventListener('mouseup', _boundMouseUp);
-    window.removeEventListener('mousemove', _boundMouseMove);
+    window.removeEventListener('mouseup', _mouseUp);
+    window.removeEventListener('mousemove', _mouseMove);
 
     if (props.stop) {
       props.stop({
@@ -258,10 +261,6 @@ export const Joystick: React.VFC<IJoystickProps> = (props) => {
         ref={_stickRef}
         className={props.disabled ? 'joystick-disabled' : ''}
         style={stickStyle}
-        // tabIndex={0}
-        // onBlur={(evt) => {
-        //   _mouseUp();
-        // }}
       ></div>
     </div>
   );
