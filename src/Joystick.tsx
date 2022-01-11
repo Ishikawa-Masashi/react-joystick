@@ -33,6 +33,7 @@ export interface IJoystickState {
 }
 
 type JoystickDirection = 'FORWARD' | 'RIGHT' | 'LEFT' | 'BACKWARD';
+
 export interface IJoystickCoordinates {
   relativeX: number;
   relativeY: number;
@@ -47,6 +48,7 @@ export const Joystick: React.VFC<IJoystickProps> = (props) => {
     stickColor = '#3D59AB',
     throttle = 0,
     size = 100,
+    disabled = false,
   } = props;
 
   const _stickRef = React.useRef<HTMLDivElement>(null);
@@ -87,14 +89,6 @@ export const Joystick: React.VFC<IJoystickProps> = (props) => {
     };
   })();
 
-  // const _boundMouseUp = () => {
-  //   _mouseUp();
-  // };
-  // const _boundMouseMove = (event: MouseEvent | TouchEvent) => {
-  //   _mouseMove(event);
-  // };
-  //   }
-
   const _updatePos = (coordinates: IJoystickCoordinates) => {
     window.requestAnimationFrame(() => {
       //   this.setState({
@@ -114,8 +108,10 @@ export const Joystick: React.VFC<IJoystickProps> = (props) => {
     });
   };
 
-  const _mouseDown = (e: any) => {
-    if (props.disabled !== true) {
+  const _mouseDown = (
+    e: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>
+  ) => {
+    if (disabled !== true) {
       _parentRectRef.current = _baseRef.current!.getBoundingClientRect();
 
       //   this.setState({
@@ -152,6 +148,7 @@ export const Joystick: React.VFC<IJoystickProps> = (props) => {
     }
     return 'BACKWARD';
   };
+
   const _getWithinBounds = (value: number): number => {
     const halfBaseSize = size / 2;
     if (value > halfBaseSize) {
@@ -162,18 +159,32 @@ export const Joystick: React.VFC<IJoystickProps> = (props) => {
     }
     return value;
   };
+
+  const isMouseEvent = (
+    event: MouseEvent | TouchEvent
+  ): event is MouseEvent => {
+    return event.type === InteractionEvents.MouseMove;
+  };
+
   const _mouseMove = (event: MouseEvent | TouchEvent) => {
     if (draggingRef.current) {
       event.stopPropagation();
       event.preventDefault();
       let absoluteX = null;
       let absoluteY = null;
-      if (event.type === InteractionEvents.MouseMove) {
-        absoluteX = (event as MouseEvent).clientX;
-        absoluteY = (event as MouseEvent).clientY;
+      // if (event.type === InteractionEvents.MouseMove) {
+      //   absoluteX = (event as MouseEvent).clientX;
+      //   absoluteY = (event as MouseEvent).clientY;
+      // } else {
+      //   absoluteX = (event as TouchEvent).touches[0].clientX;
+      //   absoluteY = (event as TouchEvent).touches[0].clientY;
+      // }
+      if (isMouseEvent(event)) {
+        absoluteX = event.clientX;
+        absoluteY = event.clientY;
       } else {
-        absoluteX = (event as TouchEvent).touches[0].clientX;
-        absoluteY = (event as TouchEvent).touches[0].clientY;
+        absoluteX = event.touches[0].clientX;
+        absoluteY = event.touches[0].clientY;
       }
 
       const relativeX = _getWithinBounds(
@@ -218,7 +229,8 @@ export const Joystick: React.VFC<IJoystickProps> = (props) => {
       });
     }
   };
-  const _getBaseStyle = () => {
+
+  const baseStyle = React.useMemo(() => {
     return {
       height: `${size}px`,
       width: `${size}px`,
@@ -228,7 +240,8 @@ export const Joystick: React.VFC<IJoystickProps> = (props) => {
       justifyContent: 'center',
       alignItems: 'center',
     };
-  };
+  }, [size, baseColor]);
+
   const _getStickStyle = () => {
     const stickSize = `${size / 1.5}px`;
 
@@ -250,12 +263,11 @@ export const Joystick: React.VFC<IJoystickProps> = (props) => {
     return stickStyle;
   };
 
-  const baseStyle = _getBaseStyle();
   const stickStyle = _getStickStyle();
 
   return (
     <div
-      className={props.disabled ? 'joystick-base-disabled' : ''}
+      className={disabled ? 'joystick-base-disabled' : ''}
       onMouseDown={_mouseDown}
       onTouchStart={_mouseDown}
       ref={_baseRef}
@@ -263,7 +275,7 @@ export const Joystick: React.VFC<IJoystickProps> = (props) => {
     >
       <div
         ref={_stickRef}
-        className={props.disabled ? 'joystick-disabled' : ''}
+        className={disabled ? 'joystick-disabled' : ''}
         style={stickStyle}
       ></div>
     </div>
