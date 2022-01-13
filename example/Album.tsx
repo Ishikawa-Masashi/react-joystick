@@ -118,11 +118,13 @@ export default function Album() {
               Dynamic formula
             </Typography>
 
-            <Joystick
-              start={(evt) => console.log('Started')}
-              move={(evt) => console.log(evt)}
-              stop={(evt) => console.log('Stopped')}
-            />
+            <div style={{ width: '500px', height: '500px' }}>
+              <Joystick
+                start={(evt) => console.log('Started')}
+                move={(evt) => console.log(evt)}
+                stop={(evt) => console.log('Stopped')}
+              />
+            </div>
             <small>
               You can notice that in the code is written the custom macro (via{' '}
               <code>props.settings</code>) for interpunct so you can use &quot;

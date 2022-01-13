@@ -122,6 +122,13 @@ export const Joystick: React.VFC<IJoystickProps> = (props) => {
         window.addEventListener(InteractionEvents.TouchMove, _mouseMove);
       }
 
+      const clientX = isMouseEvent(e.nativeEvent)
+        ? e.nativeEvent.clientX
+        : e.nativeEvent.touches[0].clientX;
+      const clientY = isMouseEvent(e.nativeEvent)
+        ? e.nativeEvent.clientY
+        : e.nativeEvent.touches[0].clientY;
+
       if (props.start) {
         props.start({
           type: 'start',
