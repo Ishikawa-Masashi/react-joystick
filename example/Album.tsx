@@ -70,7 +70,7 @@ export default function Album() {
         <Toolbar>
           <CameraIcon sx={{ mr: 2 }} />
           <Typography variant="h6" color="inherit" noWrap>
-            react-katex
+            react-joystick
           </Typography>
         </Toolbar>
       </AppBar>
@@ -107,23 +107,23 @@ export default function Album() {
               color="text.secondary"
               paragraph
             >
-              Demo of react-katex
+              Demo of react-joystick
             </Typography>
-            <Typography
+            {/* <Typography
               variant="h5"
               align="center"
               color="text.secondary"
               paragraph
             >
               Dynamic formula
-            </Typography>
+            </Typography> */}
 
             <div style={{ width: '500px', height: '500px' }}>
               <Joystick
                 start={(evt) => console.log('Started')}
                 move={(evt) => console.log(evt)}
                 stop={(evt) => console.log('Stopped')}
-                // mode={'dynamic'}
+                mode={'dynamic'}
                 autoCenter={true}
               />
             </div>

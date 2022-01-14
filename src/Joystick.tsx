@@ -62,6 +62,8 @@ export const Joystick: React.VFC<IJoystickProps> = (props) => {
     mode = 'static',
   } = props;
 
+  const [visible, setVisible] = React.useState(mode === 'static');
+
   const _stickRef = React.useRef<HTMLDivElement>(null);
   const _baseRef = React.useRef<HTMLDivElement>(null);
   //   const _throttleMoveCallback: (data: any) => void;
@@ -259,9 +261,9 @@ export const Joystick: React.VFC<IJoystickProps> = (props) => {
       justifyContent: 'center',
       alignItems: 'center',
       position: 'absolute',
-      visibility: mode === 'dynamic' ? 'hidden' : 'visible',
+      visibility: visible ? 'visible' : 'hidden',
     };
-  }, [size, baseColor, mode]);
+  }, [size, baseColor, visible]);
 
   const _getStickStyle = () => {
     const stickSize = `${size / 1.5}px`;
@@ -301,18 +303,14 @@ export const Joystick: React.VFC<IJoystickProps> = (props) => {
 
             _parentRectRef.current = _baseRef.current.getBoundingClientRect();
 
-            if (mode === 'dynamic') {
-              _baseRef.current.style.visibility = 'visible';
-            }
+            mode === 'dynamic' && setVisible(true);
           }
 
           _mouseDown(event);
         }
       }}
       onMouseUp={(event) => {
-        // if (mode === 'dynamic' && _baseRef.current) {
-        //   _baseRef.current.style.visibility = 'hide';
-        // }
+        mode === 'dynamic' && setVisible(false);
       }}
     >
       <div
