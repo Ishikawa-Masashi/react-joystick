@@ -3,6 +3,7 @@
 /exmple
 /node_modules
 /src
+/public
 
 .eslintrc.json
 .gitignore
