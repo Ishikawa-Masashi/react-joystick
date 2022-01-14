@@ -123,6 +123,8 @@ export default function Album() {
                 start={(evt) => console.log('Started')}
                 move={(evt) => console.log(evt)}
                 stop={(evt) => console.log('Stopped')}
+                // mode={'dynamic'}
+                autoCenter={true}
               />
             </div>
             <small>

@@ -1,5 +1,16 @@
 import React from 'react';
 
+// https://github.com/98oktay/react-native-axis-pad
+// size: Integer,              // Wrapper circle size. Default: 300
+// handlerSize : Intager,      // Handler circle size. Default: 150
+// wrapperStyle : Object,      // Wrapper circle styles.
+// handlerStyle : Object,      // Handler circle styles.
+// step: Float,                // Step size for values. Default: 0
+// lockX: Boolean,             // Block to X axis movement. Default: false
+// lockY: Boolean,             // Block to Y axis movement. Default: false
+// autoCenter: Boolean,        // Move wrapper to center of your touch area. Default: false
+// resetOnRelease: Boolean     // Set (0,0) position on touch end.  Default: false
+// onValue: Function           // callback: returned values { x:Float, y:Float }
 export interface IJoystickProps {
   size?: number;
   baseColor?: string;
@@ -9,6 +20,9 @@ export interface IJoystickProps {
   move?: (event: IJoystickUpdateEvent) => void;
   stop?: (event: IJoystickUpdateEvent) => void;
   start?: (event: IJoystickUpdateEvent) => void;
+  autoCenter?: boolean; // Move wrapper to center of your touch area. Default: false
+  resetOnRelease?: boolean; // Set (0,0) position on touch end.  Default: false
+  mode?: 'dynamic' | 'static'; // 'dynamic', 'static'
 }
 
 enum InteractionEvents {
@@ -39,11 +53,13 @@ export interface IJoystickCoordinates {
 
 export const Joystick: React.VFC<IJoystickProps> = (props) => {
   const {
-    baseColor = '#000033',
-    stickColor = '#3D59AB',
+    baseColor = 'hsl(0deg 0% 0% / 15%)',
+    stickColor = 'hsl(0deg 0% 0% / 31%)',
     throttle = 0,
     size = 100,
     disabled = false,
+    autoCenter = false,
+    mode = 'static',
   } = props;
 
   const _stickRef = React.useRef<HTMLDivElement>(null);
@@ -103,15 +119,18 @@ export const Joystick: React.VFC<IJoystickProps> = (props) => {
     });
   };
 
+  const isMouseDownEvent = (
+    event: MouseEvent | TouchEvent
+  ): event is MouseEvent => {
+    return event.type === InteractionEvents.MouseDown;
+  };
+
   const _mouseDown = (
     e: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>
   ) => {
     if (disabled !== true) {
       _parentRectRef.current = _baseRef.current!.getBoundingClientRect();
 
-      //   this.setState({
-      //     dragging: true,
-      //   });
       draggingRef.current = true;
 
       if (e.type === InteractionEvents.MouseDown) {
@@ -121,13 +140,6 @@ export const Joystick: React.VFC<IJoystickProps> = (props) => {
         window.addEventListener(InteractionEvents.TouchEnd, _mouseUp);
         window.addEventListener(InteractionEvents.TouchMove, _mouseMove);
       }
-
-      const clientX = isMouseEvent(e.nativeEvent)
-        ? e.nativeEvent.clientX
-        : e.nativeEvent.touches[0].clientX;
-      const clientY = isMouseEvent(e.nativeEvent)
-        ? e.nativeEvent.clientY
-        : e.nativeEvent.touches[0].clientY;
 
       if (props.start) {
         props.start({
@@ -162,7 +174,7 @@ export const Joystick: React.VFC<IJoystickProps> = (props) => {
     return value;
   };
 
-  const isMouseEvent = (
+  const isMouseMoveEvent = (
     event: MouseEvent | TouchEvent
   ): event is MouseEvent => {
     return event.type === InteractionEvents.MouseMove;
@@ -181,7 +193,7 @@ export const Joystick: React.VFC<IJoystickProps> = (props) => {
       //   absoluteX = (event as TouchEvent).touches[0].clientX;
       //   absoluteY = (event as TouchEvent).touches[0].clientY;
       // }
-      if (isMouseEvent(event)) {
+      if (isMouseMoveEvent(event)) {
         absoluteX = event.clientX;
         absoluteY = event.clientY;
       } else {
@@ -222,6 +234,11 @@ export const Joystick: React.VFC<IJoystickProps> = (props) => {
     window.removeEventListener('mouseup', _mouseUp);
     window.removeEventListener('mousemove', _mouseMove);
 
+    if (_baseRef.current) {
+      _baseRef.current.style.left = 'initial';
+      _baseRef.current.style.top = 'initial';
+    }
+
     if (props.stop) {
       props.stop({
         type: 'stop',
@@ -232,7 +249,7 @@ export const Joystick: React.VFC<IJoystickProps> = (props) => {
     }
   };
 
-  const baseStyle = React.useMemo(() => {
+  const baseStyle: React.CSSProperties = React.useMemo(() => {
     return {
       height: `${size}px`,
       width: `${size}px`,
@@ -241,8 +258,10 @@ export const Joystick: React.VFC<IJoystickProps> = (props) => {
       display: 'flex',
       justifyContent: 'center',
       alignItems: 'center',
+      position: 'absolute',
+      visibility: mode === 'dynamic' ? 'hidden' : 'visible',
     };
-  }, [size, baseColor]);
+  }, [size, baseColor, mode]);
 
   const _getStickStyle = () => {
     const stickSize = `${size / 1.5}px`;
@@ -268,10 +287,37 @@ export const Joystick: React.VFC<IJoystickProps> = (props) => {
   const stickStyle = _getStickStyle();
 
   return (
-    <>
+    <div
+      style={{ width: '100%', height: '100%' }}
+      onMouseDown={(event) => {
+        if (autoCenter) {
+          const { clientX, clientY } = event;
+
+          if (_baseRef.current) {
+            _baseRef.current.style.left =
+              clientX - _baseRef.current.clientWidth / 2 + 'px';
+            _baseRef.current.style.top =
+              clientY - _baseRef.current.clientHeight / 2 + 'px';
+
+            _parentRectRef.current = _baseRef.current.getBoundingClientRect();
+
+            if (mode === 'dynamic') {
+              _baseRef.current.style.visibility = 'visible';
+            }
+          }
+
+          _mouseDown(event);
+        }
+      }}
+      onMouseUp={(event) => {
+        // if (mode === 'dynamic' && _baseRef.current) {
+        //   _baseRef.current.style.visibility = 'hide';
+        // }
+      }}
+    >
       <div
         className={disabled ? 'joystick-base-disabled' : ''}
-        onMouseDown={_mouseDown}
+        onMouseDown={(e) => !autoCenter && _mouseDown(e)}
         onTouchStart={_mouseDown}
         ref={_baseRef}
         style={baseStyle}
@@ -358,6 +404,6 @@ export const Joystick: React.VFC<IJoystickProps> = (props) => {
           />
         </svg>
       </div> */}
-    </>
+    </div>
   );
 };
